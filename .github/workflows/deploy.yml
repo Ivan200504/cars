@@ -16,6 +16,19 @@ jobs:
       - name: Get latest code
         uses: actions/checkout@v6
 
+      - name: Normalize FTP target directory
+        id: ftp-dir
+        run: |
+          dir="${{ secrets.FTP_SERVER_DIR }}"
+          if [ -z "$dir" ]; then
+            dir="/"
+          fi
+          case "$dir" in
+            */) ;;
+            *) dir="${dir}/" ;;
+          esac
+          echo "server_dir=$dir" >> "$GITHUB_OUTPUT"
+
       - name: Sync files to FTP hosting
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
@@ -24,7 +37,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT || 21 }}
           protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR || '/' }}
+          server-dir: ${{ steps.ftp-dir.outputs.server_dir }}
           local-dir: ./
           exclude: |
             **/.git*
