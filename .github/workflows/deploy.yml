@@ -39,6 +39,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_SERVER_DIR: ${{ steps.ftp-dir.outputs.server_dir }}
         run: |
+          cd "$GITHUB_WORKSPACE"
           lftp -d -u "$FTP_USERNAME","$FTP_PASSWORD" -p 21 "$FTP_SERVER" <<LFTP_CMDS
           set cmd:fail-exit true
           set ssl:verify-certificate no
@@ -50,6 +51,11 @@ jobs:
           set net:max-retries 2
           set net:reconnect-interval-base 5
           mkdir -p "$FTP_SERVER_DIR"
-          mirror -R --delete --verbose             --exclude-glob .git*             --exclude-glob .github             --exclude-glob .github/**             --exclude-glob .DS_Store             --exclude-glob design-qa.md             ./ "$FTP_SERVER_DIR"
+          cd "$FTP_SERVER_DIR"
+          set cmd:fail-exit false
+          rm -r .git
+          rm -r .github
+          set cmd:fail-exit true
+          mirror -R --delete --verbose             --exclude-glob .git             --exclude-glob .git/**             --exclude-glob .github             --exclude-glob .github/**             --exclude-glob .DS_Store             --exclude-glob design-qa.md             . .
           bye
           LFTP_CMDS
