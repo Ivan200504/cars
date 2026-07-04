@@ -1,0 +1,823 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Админ-панель каталога | Честный пригон</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap");
+
+      :root {
+        --bg: #07111a;
+        --bg-soft: #0e1a26;
+        --panel: rgba(13, 24, 36, 0.92);
+        --panel-strong: rgba(8, 16, 24, 0.98);
+        --line: rgba(255, 255, 255, 0.08);
+        --line-strong: rgba(255, 255, 255, 0.14);
+        --text: rgba(245, 248, 251, 0.96);
+        --muted: rgba(206, 216, 224, 0.66);
+        --accent: #d7342d;
+        --accent-soft: rgba(215, 52, 45, 0.16);
+        --ok: #4f7b40;
+        --warn: #ad7d25;
+        --danger: #a54444;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        background:
+          radial-gradient(780px 420px at 10% 0%, rgba(38, 62, 87, 0.34), transparent 70%),
+          linear-gradient(180deg, #07111a 0%, #050c14 100%);
+        color: var(--text);
+        font-family: "Manrope", Arial, Helvetica, sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      input,
+      textarea,
+      select {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1680px, 100%);
+        margin: 0 auto;
+        padding: 24px clamp(18px, 3vw, 40px) 40px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+      }
+
+      .brand img {
+        width: 60px;
+        height: auto;
+      }
+
+      .brand__copy {
+        display: grid;
+        gap: 4px;
+      }
+
+      .brand__title {
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+      }
+
+      .brand__title span {
+        color: var(--accent);
+      }
+
+      .brand__subtitle {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.2;
+      }
+
+      .topbar__actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid transparent;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #df443c 0%, #bf2e28 100%);
+        color: #fff;
+        font-size: 14px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        cursor: pointer;
+      }
+
+      .button:disabled {
+        cursor: not-allowed;
+        opacity: 0.56;
+      }
+
+      .button--ghost {
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+      }
+
+      .button--ghost-danger {
+        border-color: rgba(202, 96, 96, 0.3);
+        background: rgba(165, 68, 68, 0.14);
+        color: #ffd7d7;
+      }
+
+      .hero {
+        margin-bottom: 20px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.012)),
+          var(--panel);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.04),
+          0 26px 62px rgba(0, 0, 0, 0.24);
+      }
+
+      .hero__grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+        gap: 20px;
+      }
+
+      .hero__title {
+        margin: 0 0 10px;
+        font-size: clamp(32px, 4vw, 50px);
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+      }
+
+      .hero__text {
+        margin: 0 0 16px;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .hero__checklist {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .hero__checklist li {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.025);
+        color: rgba(237, 242, 246, 0.88);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .status-box {
+        min-height: 54px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .status-box[data-tone="success"] {
+        border-color: rgba(79, 123, 64, 0.35);
+        background: rgba(79, 123, 64, 0.14);
+      }
+
+      .status-box[data-tone="warning"] {
+        border-color: rgba(173, 125, 37, 0.35);
+        background: rgba(173, 125, 37, 0.14);
+      }
+
+      .status-box[data-tone="danger"] {
+        border-color: rgba(165, 68, 68, 0.38);
+        background: rgba(165, 68, 68, 0.16);
+      }
+
+      .status-box[data-tone="info"] {
+        border-color: rgba(79, 112, 160, 0.34);
+        background: rgba(54, 86, 133, 0.16);
+      }
+
+      .github-card {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(8, 16, 25, 0.88);
+      }
+
+      .github-card h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      .github-card p {
+        margin: 0 0 16px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .form-grid--two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field__label {
+        color: rgba(227, 233, 239, 0.76);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .field__control {
+        width: 100%;
+        min-height: 46px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.025);
+        color: var(--text);
+        outline: none;
+      }
+
+      textarea.field__control {
+        min-height: 132px;
+        padding: 14px;
+        resize: vertical;
+      }
+
+      .field__control:focus {
+        border-color: rgba(215, 52, 45, 0.6);
+        box-shadow: 0 0 0 3px rgba(215, 52, 45, 0.12);
+      }
+
+      .checkbox {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1.2fr) minmax(320px, 0.9fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.008)),
+          var(--panel);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.04),
+          0 22px 50px rgba(0, 0, 0, 0.22);
+      }
+
+      .panel__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 18px 14px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel__head h2,
+      .panel__head h3 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .panel__body {
+        padding: 18px;
+      }
+
+      .panel__body--flush {
+        padding: 0;
+      }
+
+      .admin-list {
+        display: grid;
+      }
+
+      .admin-list__item {
+        width: 100%;
+        padding: 16px 18px;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .admin-list__item:last-child {
+        border-bottom: 0;
+      }
+
+      .admin-list__item.is-active {
+        background: rgba(215, 52, 45, 0.08);
+      }
+
+      .admin-list__item-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+
+      .admin-list__item-title {
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .admin-list__item-status {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .admin-list__item-status--available {
+        background: rgba(79, 123, 64, 0.18);
+        color: #e8ffe0;
+      }
+
+      .admin-list__item-status--transit {
+        background: rgba(64, 96, 144, 0.2);
+        color: #dae8ff;
+      }
+
+      .admin-list__item-status--reserved {
+        background: rgba(173, 125, 37, 0.22);
+        color: #fff0c7;
+      }
+
+      .admin-list__item-meta {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .editor-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .section-title {
+        margin: 24px 0 14px;
+        font-size: 18px;
+      }
+
+      .gallery-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .gallery-item {
+        display: grid;
+        grid-template-columns: 116px minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .gallery-item__preview {
+        overflow: hidden;
+        border-radius: 14px;
+        background: var(--bg-soft);
+        aspect-ratio: 1 / 1;
+      }
+
+      .gallery-item__preview img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .gallery-item__fields {
+        display: grid;
+        gap: 10px;
+      }
+
+      .gallery-item__row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .gallery-item__actions {
+        display: grid;
+        align-content: start;
+        gap: 8px;
+      }
+
+      .gallery-item__hint {
+        color: rgba(252, 230, 176, 0.9);
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .upload-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .upload-row input[type="file"] {
+        color: var(--muted);
+      }
+
+      .preview-stack {
+        position: sticky;
+        top: 18px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .preview-card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(8, 16, 24, 0.96);
+      }
+
+      .preview-card__media {
+        aspect-ratio: 16 / 10;
+        background: var(--bg-soft);
+      }
+
+      .preview-card__media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .preview-card__body {
+        padding: 16px;
+      }
+
+      .preview-card__body h3 {
+        margin: 0 0 10px;
+        font-size: 21px;
+      }
+
+      .preview-card__body p {
+        margin: 0 0 12px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .preview-card__meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 12px;
+        color: rgba(234, 239, 244, 0.74);
+      }
+
+      .preview-card__status {
+        padding: 5px 8px;
+        border-radius: 999px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .preview-card__status--available {
+        background: rgba(79, 123, 64, 0.18);
+        color: #e8ffe0;
+      }
+
+      .preview-card__status--transit {
+        background: rgba(64, 96, 144, 0.2);
+        color: #dae8ff;
+      }
+
+      .preview-card__status--reserved {
+        background: rgba(173, 125, 37, 0.22);
+        color: #fff0c7;
+      }
+
+      .preview-modal {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: rgba(8, 16, 24, 0.96);
+      }
+
+      .preview-modal__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .preview-modal p,
+      .preview-modal li {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .preview-modal__list {
+        display: grid;
+        gap: 10px;
+        margin: 18px 0;
+      }
+
+      .preview-modal__list div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .note {
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 1240px) {
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-stack {
+          position: static;
+        }
+      }
+
+      @media (max-width: 960px) {
+        .hero__grid,
+        .form-grid--two,
+        .gallery-item,
+        .gallery-item__row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="brand" href="./index.html">
+          <img src="./assets/logo-prigon.png" alt="" aria-hidden="true" />
+          <span class="brand__copy">
+            <span class="brand__title">ЧЕСТНЫЙ <span>ПРИГОН</span></span>
+            <span class="brand__subtitle">Админ-панель каталога автомобилей</span>
+          </span>
+        </a>
+
+        <div class="topbar__actions">
+          <a class="button button--ghost" href="./index.html">Открыть сайт</a>
+          <button class="button" type="button" data-action="publish">Опубликовать каталог</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero__grid">
+          <div>
+            <h1 class="hero__title">Полное управление каталогом без сервера</h1>
+            <p class="hero__text">
+              Эта админка работает прямо на статичном хостинге: вы редактируете карточки машин,
+              загружаете фото, сохраняете данные в GitHub, а GitHub Actions автоматически отправляет обновлённый сайт по FTP.
+            </p>
+            <ul class="hero__checklist">
+              <li>Можно создавать, редактировать, удалять и менять порядок карточек автомобилей.</li>
+              <li>Фото загружаются в репозиторий, а каталог хранится в одном JSON-файле, который читает публичный сайт.</li>
+              <li>GitHub token нужен только администратору и используется для записи в репозиторий.</li>
+            </ul>
+          </div>
+
+          <div class="github-card">
+            <h2>Подключение к GitHub</h2>
+            <p>
+              Для публикации нужен токен с правом записи в `Contents`. Если репозиторий приватный,
+              сначала нажмите «Подключиться к GitHub», чтобы забрать актуальный `catalog.json`.
+            </p>
+
+            <form class="form-grid" data-github-form>
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Owner</span>
+                  <input class="field__control" type="text" name="owner" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Repo</span>
+                  <input class="field__control" type="text" name="repo" />
+                </label>
+              </div>
+
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Branch</span>
+                  <input class="field__control" type="text" name="branch" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Папка для фото</span>
+                  <input class="field__control" type="text" name="assetsDir" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Путь к JSON каталога</span>
+                <input class="field__control" type="text" name="filePath" />
+              </label>
+
+              <label class="field">
+                <span class="field__label">GitHub token</span>
+                <input class="field__control" type="password" name="token" autocomplete="off" />
+              </label>
+
+              <label class="checkbox">
+                <input type="checkbox" name="rememberToken" />
+                <span>Запомнить токен на этом устройстве</span>
+              </label>
+
+              <div class="editor-actions">
+                <button class="button button--ghost" type="button" data-action="connect">Подключиться к GitHub</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <div class="status-box" data-admin-status data-tone="info"></div>
+
+      <section class="workspace">
+        <aside class="panel">
+          <div class="panel__head">
+            <h2>Каталог</h2>
+            <button class="button button--ghost" type="button" data-action="add-car">Новая машина</button>
+          </div>
+          <div class="panel__body panel__body--flush">
+            <div class="admin-list" data-admin-list></div>
+          </div>
+        </aside>
+
+        <section class="panel">
+          <div class="panel__head">
+            <div>
+              <h2 data-editor-title>Редактирование</h2>
+            </div>
+            <div class="editor-actions">
+              <button class="button button--ghost" type="button" data-action="move-up">Выше</button>
+              <button class="button button--ghost" type="button" data-action="move-down">Ниже</button>
+              <button class="button button--ghost" type="button" data-action="duplicate-car">Дублировать</button>
+              <button class="button button--ghost-danger" type="button" data-action="delete-car">Удалить</button>
+            </div>
+          </div>
+
+          <div class="panel__body">
+            <form class="form-grid" data-car-form>
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Slug / ID</span>
+                  <input class="field__control" type="text" name="id" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Название</span>
+                  <input class="field__control" type="text" name="name" />
+                </label>
+              </div>
+
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Страна</span>
+                  <select class="field__control" name="countryCode">
+                    <option value="usa">США</option>
+                    <option value="japan">Япония</option>
+                    <option value="korea">Корея</option>
+                    <option value="uae">ОАЭ</option>
+                    <option value="europe">Европа</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span class="field__label">Тип статуса</span>
+                  <select class="field__control" name="statusKey">
+                    <option value="available">В наличии</option>
+                    <option value="transit">В пути</option>
+                    <option value="reserved">Резерв</option>
+                  </select>
+                </label>
+              </div>
+
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Подпись статуса</span>
+                  <input class="field__control" type="text" name="statusLabel" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Строка характеристик на карточке</span>
+                  <input class="field__control" type="text" name="cardSpecs" placeholder="2022 • 18 000 км • AWD" />
+                </label>
+              </div>
+
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Цена</span>
+                  <input class="field__control" type="text" name="price" placeholder="$42 800" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Цена в BYN</span>
+                  <input class="field__control" type="text" name="priceRub" placeholder="≈ 160 000 BYN" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Краткое описание для карточки</span>
+                <textarea class="field__control" name="summary" placeholder="Короткое описание, которое видно в каталоге."></textarea>
+              </label>
+
+              <label class="field">
+                <span class="field__label">Подробное описание для модального окна</span>
+                <textarea class="field__control" name="lead" placeholder="Более подробное описание автомобиля."></textarea>
+              </label>
+
+              <div class="form-grid form-grid--two">
+                <label class="field">
+                  <span class="field__label">Характеристики</span>
+                  <textarea class="field__control" name="specsText" placeholder="Год: 2022&#10;Пробег: 18 000 км&#10;Двигатель: 2.0 л"></textarea>
+                </label>
+                <label class="field">
+                  <span class="field__label">Преимущества</span>
+                  <textarea class="field__control" name="highlightsText" placeholder="Каждая строка = отдельный пункт."></textarea>
+                </label>
+              </div>
+
+              <h3 class="section-title">Галерея и фото</h3>
+              <div class="upload-row">
+                <input type="file" multiple accept="image/*" data-gallery-upload />
+                <span class="note">Новые файлы загружаются в GitHub только при публикации.</span>
+              </div>
+              <div class="gallery-list" data-gallery-list></div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="preview-stack">
+          <section class="preview-card" data-preview-card></section>
+          <section class="preview-modal" data-preview-modal></section>
+          <div class="note">
+            Админка не требует собственного сервера. Живой сайт будет брать карточки из `data/catalog.json`,
+            а workflow из репозитория отправит их на обычный FTP-хостинг.
+          </div>
+        </aside>
+      </section>
+    </div>
+
+    <script src="./assets/js/admin.js"></script>
+  </body>
+</html>

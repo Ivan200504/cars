@@ -775,6 +775,10 @@
         background: #406090;
       }
 
+      .inventory__status--reserved {
+        background: #9f7a24;
+      }
+
       .inventory__country {
         display: inline-flex;
         align-items: center;
@@ -834,6 +838,13 @@
         line-height: 1.45;
       }
 
+      .inventory__summary {
+        margin: 0 0 14px;
+        color: rgba(221, 228, 235, 0.76);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
       .inventory__price {
         margin: 0;
         color: #f5f8fa;
@@ -887,6 +898,31 @@
         width: 18px;
         height: 18px;
         display: block;
+      }
+
+      .inventory__status-message {
+        margin-top: 12px;
+        color: rgba(214, 222, 230, 0.74);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .inventory__empty {
+        display: grid;
+        gap: 8px;
+        align-content: center;
+        min-height: 240px;
+        padding: 28px;
+        border: 1px dashed rgba(255, 255, 255, 0.14);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        color: rgba(232, 238, 244, 0.88);
+        text-align: center;
+      }
+
+      .inventory__empty span,
+      .inventory__empty code {
+        color: rgba(211, 221, 230, 0.74);
       }
 
       .reviews {
@@ -1857,6 +1893,60 @@
           0 20px 36px rgba(103, 16, 13, 0.3);
       }
 
+      .application__submit:disabled,
+      .order-form__submit:disabled {
+        cursor: wait;
+        opacity: 0.74;
+        transform: none;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 12px 24px rgba(0, 0, 0, 0.2);
+      }
+
+      .form-status {
+        display: none;
+        padding: 15px 18px;
+        border-radius: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.5;
+      }
+
+      .form-status.is-visible {
+        display: block;
+      }
+
+      .form-status.is-pending {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(244, 247, 250, 0.92);
+      }
+
+      .form-status.is-success {
+        border: 1px solid rgba(117, 174, 95, 0.24);
+        background: rgba(93, 143, 73, 0.14);
+        color: #e6f4df;
+      }
+
+      .form-status.is-error {
+        border: 1px solid rgba(223, 82, 76, 0.24);
+        background: rgba(158, 33, 28, 0.16);
+        color: #ffd8d5;
+      }
+
+      .application__form .form-status {
+        grid-column: 1 / -1;
+      }
+
+      .form-honeypot {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
       .application__bottom {
         position: relative;
         z-index: 1;
@@ -2262,6 +2352,10 @@
 
       .car-modal__status--transit {
         background: #406090;
+      }
+
+      .car-modal__status--reserved {
+        background: #9f7a24;
       }
 
       .car-modal__country {
@@ -5049,6 +5143,8 @@
           </div>
         </div>
 
+        <div class="inventory__status-message" data-inventory-status hidden></div>
+
         <div class="inventory__viewport">
           <button class="inventory__arrow inventory__arrow--prev" type="button" aria-label="Предыдущие предложения">
             <svg viewBox="0 0 18 18" fill="none">
@@ -5056,195 +5152,11 @@
             </svg>
           </button>
 
-          <div class="inventory__grid">
-            <article class="inventory__card" data-country="usa" data-car-id="mustang">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--available">В наличии</span>
-                <span class="inventory__country">
-                  <span>США</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-usa.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/mustang.webp" alt="Ford Mustang GT 5.0" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Ford Mustang GT 5.0</h3>
-              <p class="inventory__specs">2021 • 27 000 км • 5.0 л • Бензин • АКПП • RWD</p>
-              <p class="inventory__price">$32 900</p>
-              <div class="inventory__price-rub">≈ 123 000 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="mustang" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="japan" data-car-id="supra">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--transit">В пути</span>
-                <span class="inventory__country">
-                  <span>Япония</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-japan.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/supra.webp" alt="Toyota Supra RZ 3.0" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Toyota Supra RZ 3.0</h3>
-              <p class="inventory__specs">2022 • 18 000 км • 3.0 л • Бензин • АКПП • RWD</p>
-              <p class="inventory__price">$48 500</p>
-              <div class="inventory__price-rub">≈ 181 300 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="supra" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="usa" data-car-id="tesla">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--transit">В пути</span>
-                <span class="inventory__country">
-                  <span>США</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-usa.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/tesla.webp" alt="Tesla Model 3 Performance" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Tesla Model 3 Performance</h3>
-              <p class="inventory__specs">2022 • 15 000 км • Электро • АКПП • AWD</p>
-              <p class="inventory__price">$36 900</p>
-              <div class="inventory__price-rub">≈ 138 000 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="tesla" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="japan" data-car-id="lexus">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--available">В наличии</span>
-                <span class="inventory__country">
-                  <span>Япония</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-japan.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/lexus.webp" alt="Lexus NX 350 F Sport" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Lexus NX 350 F Sport</h3>
-              <p class="inventory__specs">2022 • 24 000 км • 2.4 л • Бензин • АКПП • AWD</p>
-              <p class="inventory__price">$42 800</p>
-              <div class="inventory__price-rub">≈ 160 000 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="lexus" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="korea" data-car-id="kia">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--transit">В пути</span>
-                <span class="inventory__country">
-                  <span>Корея</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-korea.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/tesla.webp" alt="Kia EV6 GT-Line AWD" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Kia EV6 GT-Line AWD</h3>
-              <p class="inventory__specs">2023 • 11 000 км • Электро • АКПП • AWD</p>
-              <p class="inventory__price">$34 700</p>
-              <div class="inventory__price-rub">≈ 129 700 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="kia" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="uae" data-car-id="mercedes">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--available">В наличии</span>
-                <span class="inventory__country">
-                  <span>ОАЭ</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-uae.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/lexus.webp" alt="Mercedes-Benz GLE 450 4MATIC" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">Mercedes-Benz GLE 450 4MATIC</h3>
-              <p class="inventory__specs">2022 • 19 000 км • 3.0 л • Бензин • АКПП • AWD</p>
-              <p class="inventory__price">$58 900</p>
-              <div class="inventory__price-rub">≈ 220 200 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="mercedes" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
-
-            <article class="inventory__card" data-country="europe" data-car-id="bmw">
-              <div class="inventory__card-top">
-                <span class="inventory__status inventory__status--transit">В пути</span>
-                <span class="inventory__country">
-                  <span>Европа</span>
-                  <span class="inventory__flag" aria-hidden="true">
-                    <img src="./assets/flags/flag-europe.png" alt="" />
-                  </span>
-                </span>
-              </div>
-              <div class="inventory__media">
-                <img src="./assets/supra.webp" alt="BMW 430i Coupe M Sport" loading="lazy" decoding="async" />
-              </div>
-              <h3 class="inventory__name">BMW 430i Coupe M Sport</h3>
-              <p class="inventory__specs">2021 • 29 000 км • 2.0 л • Бензин • АКПП • RWD</p>
-              <p class="inventory__price">$39 400</p>
-              <div class="inventory__price-rub">≈ 147 300 BYN</div>
-              <div class="inventory__actions">
-                <button class="inventory__more" type="button" data-car-modal-open data-car-id="bmw" aria-haspopup="dialog">Подробнее</button>
-                <button class="inventory__fav" type="button" aria-label="Добавить в избранное">
-                  <svg viewBox="0 0 20 20" fill="none">
-                    <path d="M10 16.5L4.6 11.4C3.3 10.1 3.3 7.9 4.6 6.6C5.8 5.4 7.8 5.4 9 6.6L10 7.6L11 6.6C12.2 5.4 14.2 5.4 15.4 6.6C16.7 7.9 16.7 10.1 15.4 11.4L10 16.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </article>
+          <div class="inventory__grid" data-inventory-grid>
+            <div class="inventory__empty">
+              <strong>Каталог готовится к загрузке.</strong>
+              <span>Если вы открыли файл локально, запустите сайт через HTTP-сервер, чтобы `fetch` мог прочитать `catalog.json`.</span>
+            </div>
           </div>
 
           <button class="inventory__arrow inventory__arrow--next" type="button" aria-label="Следующие предложения">
@@ -5801,13 +5713,16 @@
               </p>
             </div>
 
-            <form class="application__form" data-application-form>
+            <form class="application__form" data-application-form action="./send-request.php" method="post" novalidate>
+              <input type="hidden" name="source" value="Главная форма" />
+              <input type="text" name="company" class="form-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
               <label class="application__field">
-                <input class="application__control" type="text" name="name" placeholder="Ваше имя" autocomplete="name" />
+                <input class="application__control" type="text" name="name" placeholder="Ваше имя" autocomplete="name" required />
               </label>
 
               <label class="application__field">
-                <input class="application__control" type="tel" name="phone" placeholder="Телефон" autocomplete="tel" />
+                <input class="application__control" type="tel" name="phone" placeholder="Телефон" autocomplete="tel" inputmode="tel" required />
               </label>
 
               <label class="application__field application__field--wide">
@@ -5817,6 +5732,8 @@
               <div class="application__field application__field--submit">
                 <button class="application__submit" type="submit">Отправить заявку</button>
               </div>
+
+              <div class="form-status" data-application-status aria-live="polite"></div>
             </form>
           </div>
 
@@ -6001,20 +5918,23 @@
         </div>
 
         <div class="order-modal__form-wrap">
-          <form class="order-form">
+          <form class="order-form" action="./send-request.php" method="post" novalidate>
+            <input type="hidden" name="source" value="Модальное окно" />
+            <input type="text" name="company" class="form-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
             <label class="order-form__field">
               <span class="order-form__label">Ваше имя</span>
-              <input class="order-form__control" type="text" name="name" placeholder="Введите ваше имя" autocomplete="name" />
+              <input class="order-form__control" type="text" name="name" placeholder="Введите ваше имя" autocomplete="name" required />
             </label>
 
             <label class="order-form__field">
               <span class="order-form__label">Телефон</span>
-              <input class="order-form__control" type="tel" name="phone" placeholder="+375 (__) ___-__-__" autocomplete="tel" inputmode="tel" />
+              <input class="order-form__control" type="tel" name="phone" placeholder="+375 (__) ___-__-__" autocomplete="tel" inputmode="tel" required />
             </label>
 
             <label class="order-form__field">
               <span class="order-form__label">Интересующий автомобиль</span>
-              <input class="order-form__control" type="text" name="car" placeholder="Марка, модель, год (необязательно)" autocomplete="off" data-order-car />
+              <input class="order-form__control" type="text" name="car" placeholder="Марка, модель, год (необязательно)" autocomplete="off" data-order-car data-preserve-on-reset />
             </label>
 
             <label class="order-form__field">
@@ -6033,6 +5953,8 @@
               </svg>
             </button>
 
+            <div class="form-status" data-order-modal-status aria-live="polite"></div>
+
             <p class="order-form__note">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor" fill-opacity="0.82"/>
@@ -6045,6 +5967,7 @@
       </div>
     </div>
 
+    <script src="./assets/js/catalog.js"></script>
     <script>
       (function () {
         const brandLink = document.querySelector(".header .brand");
@@ -6133,59 +6056,6 @@
           if (!event.matches) {
             closeMenu();
           }
-        });
-      })();
-
-      (function () {
-        const filterButtons = Array.from(document.querySelectorAll("[data-country-filter]"));
-        const cards = Array.from(document.querySelectorAll(".inventory__card[data-country]"));
-        const inventoryGrid = document.querySelector(".inventory__grid");
-        const mobileInventoryMedia = window.matchMedia("(max-width: 640px)");
-
-        if (!filterButtons.length || !cards.length) {
-          return;
-        }
-
-        function getActiveCountries() {
-          return filterButtons
-            .filter((button) => button.getAttribute("aria-pressed") === "true")
-            .map((button) => button.dataset.countryFilter);
-        }
-
-        function applyCountryFilter() {
-          const activeCountries = getActiveCountries();
-          const visibleCountries = activeCountries.length
-            ? activeCountries
-            : filterButtons.map((button) => button.dataset.countryFilter);
-
-          cards.forEach((card) => {
-            card.hidden = !visibleCountries.includes(card.dataset.country);
-          });
-
-          if (mobileInventoryMedia.matches && inventoryGrid) {
-            inventoryGrid.scrollTo({ left: 0, behavior: "smooth" });
-          }
-        }
-
-        filterButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            const currentlyPressed = button.getAttribute("aria-pressed") === "true";
-            const activeCountries = getActiveCountries();
-
-            if (currentlyPressed && activeCountries.length === 1) {
-              filterButtons.forEach((item) => item.setAttribute("aria-pressed", "true"));
-            } else {
-              button.setAttribute("aria-pressed", currentlyPressed ? "false" : "true");
-            }
-
-            applyCountryFilter();
-          });
-        });
-
-        applyCountryFilter();
-
-        mobileInventoryMedia.addEventListener("change", () => {
-          applyCountryFilter();
         });
       })();
 
@@ -6333,8 +6203,117 @@
         });
       })();
 
+      function setFormStatus(statusElement, type, message) {
+        if (!statusElement) {
+          return;
+        }
+
+        statusElement.className = "form-status";
+
+        if (!message) {
+          statusElement.textContent = "";
+          return;
+        }
+
+        statusElement.classList.add("is-visible");
+
+        if (type) {
+          statusElement.classList.add(`is-${type}`);
+        }
+
+        statusElement.textContent = message;
+      }
+
+      function setSubmitButtonState(button, isPending) {
+        if (!button) {
+          return;
+        }
+
+        if (!button.dataset.defaultMarkup) {
+          button.dataset.defaultMarkup = button.innerHTML;
+        }
+
+        button.disabled = isPending;
+
+        if (isPending) {
+          const label = button.querySelector("span");
+
+          if (label) {
+            label.textContent = "Отправляем...";
+          } else {
+            button.textContent = "Отправляем...";
+          }
+
+          return;
+        }
+
+        button.innerHTML = button.dataset.defaultMarkup;
+      }
+
+      async function submitLeadForm(form, statusElement, onSuccess) {
+        const formData = new FormData(form);
+        const name = `${formData.get("name") || ""}`.trim();
+        const phone = `${formData.get("phone") || ""}`.trim();
+        const submitButton = form.querySelector("button[type='submit']");
+
+        if (!name || !phone) {
+          setFormStatus(statusElement, "error", "Заполните имя и телефон, чтобы отправить заявку.");
+          return false;
+        }
+
+        formData.set("name", name);
+        formData.set("phone", phone);
+        formData.set("page_url", window.location.href);
+        formData.set("page_title", document.title);
+
+        setSubmitButtonState(submitButton, true);
+        setFormStatus(statusElement, "pending", "Отправляем заявку в Telegram...");
+
+        try {
+          const response = await fetch(form.getAttribute("action") || "./send-request.php", {
+            method: "POST",
+            body: formData,
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          const result = await response.json().catch(() => ({
+            ok: false,
+            message: "Сервер вернул непонятный ответ. Проверьте PHP-обработчик на хостинге.",
+          }));
+
+          if (!response.ok || !result.ok) {
+            throw new Error(result.message || "Не удалось отправить заявку.");
+          }
+
+          const preservedValues = Array.from(form.querySelectorAll("[data-preserve-on-reset]")).map((input) => [input, input.value]);
+          form.reset();
+          preservedValues.forEach(([input, value]) => {
+            input.value = value;
+          });
+
+          if (typeof onSuccess === "function") {
+            onSuccess(result);
+          }
+
+          setFormStatus(statusElement, "success", result.message || "Заявка отправлена. Мы скоро свяжемся с вами.");
+          return true;
+        } catch (error) {
+          setFormStatus(
+            statusElement,
+            "error",
+            error instanceof Error ? error.message : "Не удалось отправить заявку. Попробуйте ещё раз.",
+          );
+          return false;
+        } finally {
+          setSubmitButtonState(submitButton, false);
+        }
+      }
+
       (function () {
         const form = document.querySelector("[data-application-form]");
+        const statusElement = document.querySelector("[data-application-status]");
 
         if (!form) {
           return;
@@ -6373,515 +6352,7 @@
 
         form.addEventListener("submit", (event) => {
           event.preventDefault();
-
-          const params = new URLSearchParams();
-
-          if (nameInput && nameInput.value.trim()) {
-            params.set("name", nameInput.value.trim());
-          }
-
-          if (phoneInput && phoneInput.value.trim()) {
-            params.set("phone", phoneInput.value.trim());
-          }
-
-          if (carInput && carInput.value.trim()) {
-            params.set("car", carInput.value.trim());
-          }
-
-          window.location.href = `./order.html${params.toString() ? `?${params.toString()}` : ""}`;
-        });
-      })();
-
-      (function () {
-        function buildGallery(src, views) {
-          return views.map((view) => ({
-            src,
-            label: view.label,
-            position: view.position,
-            scale: view.scale,
-          }));
-        }
-
-        const carCatalog = {
-          mustang: {
-            name: "Ford Mustang GT 5.0",
-            image: "./assets/mustang.webp",
-            gallery: buildGallery("./assets/mustang.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "26% 56%", scale: 1.18 },
-              { label: "Боковой ракурс", position: "72% 54%", scale: 1.2 },
-            ]),
-            status: "В наличии",
-            statusModifier: "available",
-            country: "США",
-            price: "$32 900",
-            priceRub: "≈ 123 000 BYN",
-            lead: "Яркое купе с атмосферным V8 и классическим задним приводом. Хороший вариант, если хочется эмоциональный автомобиль с понятной конфигурацией.",
-            specs: [
-              ["Год", "2021"],
-              ["Пробег", "27 000 км"],
-              ["Двигатель", "5.0 л"],
-              ["Топливо", "Бензин"],
-              ["Коробка", "АКПП"],
-              ["Привод", "RWD"],
-            ],
-            highlights: [
-              "Подходит для тех, кто ищет выразительное спортивное купе на каждый день.",
-              "Перед покупкой подготовим фотоотчёт, проверку истории и расчёт под ключ.",
-              "Поможем с доставкой, таможней и выдачей автомобиля в вашем городе.",
-            ],
-          },
-          supra: {
-            name: "Toyota Supra RZ 3.0",
-            image: "./assets/supra.webp",
-            gallery: buildGallery("./assets/supra.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "28% 54%", scale: 1.16 },
-              { label: "Колесо и профиль", position: "74% 64%", scale: 1.24 },
-            ]),
-            status: "В пути",
-            statusModifier: "transit",
-            country: "Япония",
-            price: "$48 500",
-            priceRub: "≈ 181 300 BYN",
-            lead: "Современное спортивное купе с 3.0-литровым мотором и задним приводом. Подойдёт, если нужен баланс яркой динамики и японской школы настройки.",
-            specs: [
-              ["Год", "2022"],
-              ["Пробег", "18 000 км"],
-              ["Двигатель", "3.0 л"],
-              ["Топливо", "Бензин"],
-              ["Коробка", "АКПП"],
-              ["Привод", "RWD"],
-            ],
-            highlights: [
-              "Небольшой пробег и спортивная конфигурация делают модель интересной для энтузиастов.",
-              "Покажем состояние по фото и документам до финального решения о покупке.",
-              "Сопроводим логистику из Японии и все этапы оформления под ключ.",
-            ],
-          },
-          tesla: {
-            name: "Tesla Model 3 Performance",
-            image: "./assets/tesla.webp",
-            gallery: buildGallery("./assets/tesla.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "30% 55%", scale: 1.15 },
-              { label: "Силуэт", position: "72% 56%", scale: 1.18 },
-            ]),
-            status: "В пути",
-            statusModifier: "transit",
-            country: "США",
-            price: "$36 900",
-            priceRub: "≈ 138 000 BYN",
-            lead: "Быстрый электрический седан с полным приводом и современной цифровой архитектурой. Хороший выбор для тех, кому важны динамика и технологичность.",
-            specs: [
-              ["Год", "2022"],
-              ["Пробег", "15 000 км"],
-              ["Силовая установка", "Электро"],
-              ["Коробка", "АКПП"],
-              ["Привод", "AWD"],
-              ["Статус", "В пути"],
-            ],
-            highlights: [
-              "Performance-версия подойдёт для активной городской езды и дальних поездок.",
-              "До покупки подготовим расчёт расходов и прогноз сроков доставки.",
-              "Проверим состояние автомобиля и историю перед финальным согласованием.",
-            ],
-          },
-          lexus: {
-            name: "Lexus NX 350 F Sport",
-            image: "./assets/lexus.webp",
-            gallery: buildGallery("./assets/lexus.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "30% 52%", scale: 1.16 },
-              { label: "Задний ракурс", position: "72% 52%", scale: 1.18 },
-            ]),
-            status: "В наличии",
-            statusModifier: "available",
-            country: "Япония",
-            price: "$42 800",
-            priceRub: "≈ 160 000 BYN",
-            lead: "Премиальный кроссовер с акцентом на комфорт, управляемость и ежедневную практичность. Подойдёт для семейного использования и поездок на каждый день.",
-            specs: [
-              ["Год", "2022"],
-              ["Пробег", "24 000 км"],
-              ["Двигатель", "2.4 л"],
-              ["Топливо", "Бензин"],
-              ["Коробка", "АКПП"],
-              ["Привод", "AWD"],
-            ],
-            highlights: [
-              "F Sport подчёркивает более динамичный характер и выразительный внешний вид.",
-              "Подготовим подробный расчёт стоимости, включая доставку и растаможку.",
-              "Сопроводим сделку, документы и передачу автомобиля после прибытия.",
-            ],
-          },
-          kia: {
-            name: "Kia EV6 GT-Line AWD",
-            image: "./assets/tesla.webp",
-            gallery: buildGallery("./assets/tesla.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "28% 55%", scale: 1.16 },
-              { label: "Профиль", position: "72% 56%", scale: 1.18 },
-            ]),
-            status: "В пути",
-            statusModifier: "transit",
-            country: "Корея",
-            price: "$34 700",
-            priceRub: "≈ 129 700 BYN",
-            lead: "Современный электрический кроссовер с полным приводом и спокойной повседневной эксплуатацией. Хороший вариант, если нужен технологичный автомобиль из корейского рынка.",
-            specs: [
-              ["Год", "2023"],
-              ["Пробег", "11 000 км"],
-              ["Силовая установка", "Электро"],
-              ["Коробка", "АКПП"],
-              ["Привод", "AWD"],
-              ["Статус", "В пути"],
-            ],
-            highlights: [
-              "Подходит для тех, кто ищет свежий электрический автомобиль с современным оснащением.",
-              "Покажем расчёт под ключ и прогноз по логистике ещё до финального решения.",
-              "Сопроводим покупку, доставку и подготовку документов по полному циклу.",
-            ],
-          },
-          mercedes: {
-            name: "Mercedes-Benz GLE 450 4MATIC",
-            image: "./assets/lexus.webp",
-            gallery: buildGallery("./assets/lexus.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "30% 52%", scale: 1.14 },
-              { label: "Задний ракурс", position: "72% 52%", scale: 1.18 },
-            ]),
-            status: "В наличии",
-            statusModifier: "available",
-            country: "ОАЭ",
-            price: "$58 900",
-            priceRub: "≈ 220 200 BYN",
-            lead: "Комфортный премиальный кроссовер с мощным бензиновым мотором и богатой комплектацией. Интересен, если нужен статусный автомобиль из рынка ОАЭ.",
-            specs: [
-              ["Год", "2022"],
-              ["Пробег", "19 000 км"],
-              ["Двигатель", "3.0 л"],
-              ["Топливо", "Бензин"],
-              ["Коробка", "АКПП"],
-              ["Привод", "AWD"],
-            ],
-            highlights: [
-              "Подходит для тех, кто ищет просторный и хорошо оснащённый кроссовер.",
-              "Подготовим полную смету с учётом логистики, таможни и выдачи.",
-              "Перед покупкой проверим состояние, историю и комплект документов.",
-            ],
-          },
-          bmw: {
-            name: "BMW 430i Coupe M Sport",
-            image: "./assets/supra.webp",
-            gallery: buildGallery("./assets/supra.webp", [
-              { label: "Общий план", position: "center center", scale: 1 },
-              { label: "Передняя часть", position: "28% 54%", scale: 1.16 },
-              { label: "Профиль", position: "74% 60%", scale: 1.22 },
-            ]),
-            status: "В пути",
-            statusModifier: "transit",
-            country: "Европа",
-            price: "$39 400",
-            priceRub: "≈ 147 300 BYN",
-            lead: "Двухдверное купе с акцентом на управляемость, стиль и повседневный комфорт. Подойдёт, если нужен европейский рынок и более собранный драйверский характер.",
-            specs: [
-              ["Год", "2021"],
-              ["Пробег", "29 000 км"],
-              ["Двигатель", "2.0 л"],
-              ["Топливо", "Бензин"],
-              ["Коробка", "АКПП"],
-              ["Привод", "RWD"],
-            ],
-            highlights: [
-              "M Sport добавляет более собранную настройку и визуально выразительный пакет.",
-              "Покажем прозрачный расчёт покупки и всех сопутствующих этапов до выдачи.",
-              "Сопроводим логистику из Европы и оформление полного комплекта документов.",
-            ],
-          },
-        };
-
-        const carModal = document.getElementById("car-modal");
-        const carModalOpenButtons = Array.from(document.querySelectorAll("[data-car-modal-open]"));
-        const carModalCloseButtons = Array.from(document.querySelectorAll("[data-car-modal-close]"));
-        const carModalImage = document.querySelector("[data-car-modal-image]");
-        const carModalStatus = document.querySelector("[data-car-modal-status]");
-        const carModalCountry = document.querySelector("[data-car-modal-country]");
-        const carModalTitle = document.querySelector("[data-car-modal-title]");
-        const carModalLead = document.querySelector("[data-car-modal-lead]");
-        const carModalBody = carModal ? carModal.querySelector(".car-modal__body") : null;
-        const carModalSpecs = document.querySelector("[data-car-modal-specs]");
-        const carModalPrice = document.querySelector("[data-car-modal-price]");
-        const carModalPriceRub = document.querySelector("[data-car-modal-price-rub]");
-        const carModalHighlights = document.querySelector("[data-car-modal-highlights]");
-        const carModalOrderLink = document.querySelector("[data-car-modal-order]");
-        const carModalThumbs = document.querySelector("[data-car-modal-thumbs]");
-        const carModalGalleryPrev = document.querySelector("[data-car-modal-gallery-prev]");
-        const carModalGalleryNext = document.querySelector("[data-car-modal-gallery-next]");
-        const carModalStage = carModal ? carModal.querySelector(".car-modal__stage") : null;
-
-        if (!carModal || !carModalOpenButtons.length) {
-          return;
-        }
-
-        let previousFocus = null;
-        let currentCar = null;
-        let currentGalleryIndex = 0;
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        function getCarGallery(car) {
-          return Array.isArray(car.gallery) && car.gallery.length
-            ? car.gallery
-            : [{ src: car.image, label: "Фото", position: "center center", scale: 1 }];
-        }
-
-        function updateGalleryControls(galleryLength) {
-          const shouldDisable = galleryLength < 2;
-
-          if (carModalGalleryPrev) {
-            carModalGalleryPrev.disabled = shouldDisable;
-          }
-
-          if (carModalGalleryNext) {
-            carModalGalleryNext.disabled = shouldDisable;
-          }
-        }
-
-        function setGallerySlide(index) {
-          if (!currentCar || !carModalImage) {
-            return;
-          }
-
-          const gallery = getCarGallery(currentCar);
-          const safeIndex = ((index % gallery.length) + gallery.length) % gallery.length;
-          const slide = gallery[safeIndex];
-
-          currentGalleryIndex = safeIndex;
-          carModalImage.src = slide.src;
-          carModalImage.alt = `${currentCar.name} — ${slide.label.toLowerCase()}`;
-          carModalImage.style.objectPosition = slide.position || "center center";
-          carModalImage.style.transform = `scale(${slide.scale || 1})`;
-
-          if (carModalThumbs) {
-            Array.from(carModalThumbs.querySelectorAll("[data-car-modal-thumb]")).forEach((button) => {
-              button.setAttribute("aria-current", button.dataset.index === String(safeIndex) ? "true" : "false");
-            });
-          }
-
-          updateGalleryControls(gallery.length);
-        }
-
-        function renderGallery(car) {
-          const gallery = getCarGallery(car);
-
-          if (carModalThumbs) {
-            carModalThumbs.innerHTML = gallery
-              .map(
-                (slide, index) => `
-                  <button
-                    class="car-modal__thumb"
-                    type="button"
-                    data-car-modal-thumb
-                    data-index="${index}"
-                    aria-current="${index === 0 ? "true" : "false"}"
-                    aria-label="${slide.label}"
-                    >
-                    <span class="car-modal__thumb-image" aria-hidden="true">
-                      <img
-                        src="${slide.src}"
-                        alt=""
-                        style="object-position: ${slide.position || "center center"}; transform: scale(${slide.scale || 1});"
-                      />
-                    </span>
-                  </button>
-                `,
-              )
-              .join("");
-
-            Array.from(carModalThumbs.querySelectorAll("[data-car-modal-thumb]")).forEach((button) => {
-              button.addEventListener("click", () => {
-                setGallerySlide(Number(button.dataset.index || 0));
-              });
-            });
-          }
-
-          setGallerySlide(0);
-        }
-
-        function renderCarModal(car) {
-          if (!car) {
-            return;
-          }
-
-          currentCar = car;
-          renderGallery(car);
-
-          if (carModalStatus) {
-            carModalStatus.textContent = car.status;
-            carModalStatus.className = `car-modal__status car-modal__status--${car.statusModifier}`;
-          }
-
-          if (carModalCountry) {
-            carModalCountry.textContent = car.country;
-          }
-
-          if (carModalTitle) {
-            carModalTitle.textContent = car.name;
-          }
-
-          if (carModalLead) {
-            carModalLead.textContent = car.lead;
-          }
-
-          if (carModalSpecs) {
-            carModalSpecs.innerHTML = car.specs
-              .map(
-                ([label, value]) => `
-                  <div class="car-modal__spec">
-                    <span class="car-modal__spec-label">${label}</span>
-                    <span class="car-modal__spec-value">${value}</span>
-                  </div>
-                `,
-              )
-              .join("");
-          }
-
-          if (carModalPrice) {
-            carModalPrice.textContent = car.price;
-          }
-
-          if (carModalPriceRub) {
-            carModalPriceRub.textContent = car.priceRub;
-          }
-
-          if (carModalHighlights) {
-            carModalHighlights.innerHTML = car.highlights.map((item) => `<li>${item}</li>`).join("");
-          }
-
-          if (carModalOrderLink) {
-            carModalOrderLink.href = `./order.html?car=${encodeURIComponent(car.name)}`;
-          }
-
-          if (carModalBody) {
-            carModalBody.scrollTop = 0;
-          }
-        }
-
-        function openCarModal(carId) {
-          const car = carCatalog[carId];
-          if (!car) {
-            return;
-          }
-
-          previousFocus = document.activeElement;
-          renderCarModal(car);
-          carModal.classList.add("is-open");
-          carModal.setAttribute("aria-hidden", "false");
-          document.body.classList.add("is-modal-open");
-
-          const firstFocusable = carModal.querySelector("button, a");
-          if (firstFocusable) {
-            firstFocusable.focus({ preventScroll: true });
-          }
-        }
-
-        function closeCarModal() {
-          carModal.classList.remove("is-open");
-          carModal.setAttribute("aria-hidden", "true");
-          document.body.classList.remove("is-modal-open");
-
-          if (previousFocus && typeof previousFocus.focus === "function") {
-            previousFocus.focus({ preventScroll: true });
-          }
-        }
-
-        carModalOpenButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            openCarModal(button.dataset.carId || "");
-          });
-        });
-
-        carModalCloseButtons.forEach((button) => {
-          button.addEventListener("click", closeCarModal);
-        });
-
-        if (carModalGalleryPrev) {
-          carModalGalleryPrev.addEventListener("click", () => {
-            setGallerySlide(currentGalleryIndex - 1);
-          });
-        }
-
-        if (carModalGalleryNext) {
-          carModalGalleryNext.addEventListener("click", () => {
-            setGallerySlide(currentGalleryIndex + 1);
-          });
-        }
-
-        if (carModalStage) {
-          carModalStage.addEventListener(
-            "touchstart",
-            (event) => {
-              const touch = event.touches[0];
-
-              if (!touch) {
-                return;
-              }
-
-              touchStartX = touch.clientX;
-              touchStartY = touch.clientY;
-            },
-            { passive: true },
-          );
-
-          carModalStage.addEventListener(
-            "touchend",
-            (event) => {
-              const touch = event.changedTouches[0];
-
-              if (!touch) {
-                return;
-              }
-
-              const deltaX = touch.clientX - touchStartX;
-              const deltaY = touch.clientY - touchStartY;
-
-              if (Math.abs(deltaX) < 36 || Math.abs(deltaX) <= Math.abs(deltaY)) {
-                return;
-              }
-
-              if (deltaX < 0) {
-                setGallerySlide(currentGalleryIndex + 1);
-              } else {
-                setGallerySlide(currentGalleryIndex - 1);
-              }
-            },
-            { passive: true },
-          );
-        }
-
-        carModal.addEventListener("click", (event) => {
-          if (event.target === carModal) {
-            closeCarModal();
-          }
-        });
-
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && carModal.classList.contains("is-open")) {
-            closeCarModal();
-          }
-
-          if (!carModal.classList.contains("is-open")) {
-            return;
-          }
-
-          if (event.key === "ArrowLeft") {
-            setGallerySlide(currentGalleryIndex - 1);
-          }
-
-          if (event.key === "ArrowRight") {
-            setGallerySlide(currentGalleryIndex + 1);
-          }
+          submitLeadForm(form, statusElement);
         });
       })();
 
@@ -6895,6 +6366,7 @@
         const counter = document.querySelector("[data-order-counter]");
         const phoneInput = document.querySelector(".order-form input[name='phone']");
         const form = document.querySelector(".order-form");
+        const statusElement = document.querySelector("[data-order-modal-status]");
 
         if (!modal || !openButtons.length) {
           return;
@@ -6912,6 +6384,9 @@
 
         function openModal(carName) {
           previousFocus = document.activeElement;
+
+          setFormStatus(statusElement, "", "");
+
           if (carInput && carName) {
             carInput.value = carName;
           }
@@ -6992,27 +6467,11 @@
         }
 
         if (form) {
-          form.addEventListener("submit", (event) => {
+          form.addEventListener("submit", async (event) => {
             event.preventDefault();
-            const params = new URLSearchParams();
-
-            if (nameInput && nameInput.value.trim()) {
-              params.set("name", nameInput.value.trim());
-            }
-
-            if (phoneInput && phoneInput.value.trim()) {
-              params.set("phone", phoneInput.value.trim());
-            }
-
-            if (carInput && carInput.value.trim()) {
-              params.set("car", carInput.value.trim());
-            }
-
-            if (messageInput && messageInput.value.trim()) {
-              params.set("message", messageInput.value.trim());
-            }
-
-            window.location.href = `./order.html${params.toString() ? `?${params.toString()}` : ""}`;
+            await submitLeadForm(form, statusElement, () => {
+              updateCounter();
+            });
           });
         }
 

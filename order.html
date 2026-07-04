@@ -227,6 +227,14 @@
         height: 22px;
       }
 
+      .order-form__submit:disabled {
+        cursor: wait;
+        opacity: 0.74;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 12px 24px rgba(0, 0, 0, 0.18);
+      }
+
       .order-form__note {
         margin: 0;
         color: rgba(216, 224, 232, 0.54);
@@ -234,20 +242,44 @@
         line-height: 1.5;
       }
 
-      .success {
+      .form-status {
         display: none;
         margin-bottom: 22px;
         padding: 16px 18px;
-        border: 1px solid rgba(117, 174, 95, 0.2);
         border-radius: 14px;
-        background: rgba(93, 143, 73, 0.12);
-        color: #e6f4df;
         font-size: 15px;
         line-height: 1.5;
       }
 
-      .success.is-visible {
+      .form-status.is-visible {
         display: block;
+      }
+
+      .form-status.is-pending {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(244, 247, 250, 0.92);
+      }
+
+      .form-status.is-success {
+        border: 1px solid rgba(117, 174, 95, 0.2);
+        background: rgba(93, 143, 73, 0.12);
+        color: #e6f4df;
+      }
+
+      .form-status.is-error {
+        border: 1px solid rgba(223, 82, 76, 0.24);
+        background: rgba(158, 33, 28, 0.16);
+        color: #ffd8d5;
+      }
+
+      .form-honeypot {
+        position: absolute;
+        left: -9999px;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
       }
 
       @media (max-width: 960px) {
@@ -305,24 +337,27 @@
             </p>
           </div>
 
-          <div class="success" data-success-message>
-            Заявка готова к отправке. В реальном проекте здесь можно подключить CRM, Telegram или email-обработчик.
+          <div class="form-status" data-success-message aria-live="polite">
+            Заявка отправлена. Мы скоро свяжемся с вами.
           </div>
 
-          <form class="order-form" data-order-page-form>
+          <form class="order-form" data-order-page-form action="./send-request.php" method="post" novalidate>
+            <input type="hidden" name="source" value="Страница заявки" />
+            <input type="text" name="company" class="form-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
             <label class="order-form__field">
               <span class="order-form__label">Ваше имя</span>
-              <input class="order-form__control" type="text" name="name" placeholder="Введите ваше имя" autocomplete="name" />
+              <input class="order-form__control" type="text" name="name" placeholder="Введите ваше имя" autocomplete="name" required />
             </label>
 
             <label class="order-form__field">
               <span class="order-form__label">Телефон</span>
-              <input class="order-form__control" type="tel" name="phone" placeholder="+375 (__) ___-__-__" autocomplete="tel" inputmode="tel" />
+              <input class="order-form__control" type="tel" name="phone" placeholder="+375 (__) ___-__-__" autocomplete="tel" inputmode="tel" required />
             </label>
 
             <label class="order-form__field">
               <span class="order-form__label">Интересующий автомобиль</span>
-              <input class="order-form__control" type="text" name="car" placeholder="Марка, модель, год" autocomplete="off" />
+              <input class="order-form__control" type="text" name="car" placeholder="Марка, модель, год" autocomplete="off" data-preserve-on-reset />
             </label>
 
             <label class="order-form__field">
@@ -348,6 +383,114 @@
     </div>
 
     <script>
+      function setFormStatus(statusElement, type, message) {
+        if (!statusElement) {
+          return;
+        }
+
+        statusElement.className = "form-status";
+
+        if (!message) {
+          statusElement.textContent = "";
+          return;
+        }
+
+        statusElement.classList.add("is-visible");
+
+        if (type) {
+          statusElement.classList.add(`is-${type}`);
+        }
+
+        statusElement.textContent = message;
+      }
+
+      function setSubmitButtonState(button, isPending) {
+        if (!button) {
+          return;
+        }
+
+        if (!button.dataset.defaultMarkup) {
+          button.dataset.defaultMarkup = button.innerHTML;
+        }
+
+        button.disabled = isPending;
+
+        if (isPending) {
+          const label = button.querySelector("span");
+
+          if (label) {
+            label.textContent = "Отправляем...";
+          } else {
+            button.textContent = "Отправляем...";
+          }
+
+          return;
+        }
+
+        button.innerHTML = button.dataset.defaultMarkup;
+      }
+
+      async function submitLeadForm(form, statusElement, onSuccess) {
+        const formData = new FormData(form);
+        const name = `${formData.get("name") || ""}`.trim();
+        const phone = `${formData.get("phone") || ""}`.trim();
+        const submitButton = form.querySelector("button[type='submit']");
+
+        if (!name || !phone) {
+          setFormStatus(statusElement, "error", "Заполните имя и телефон, чтобы отправить заявку.");
+          return false;
+        }
+
+        formData.set("name", name);
+        formData.set("phone", phone);
+        formData.set("page_url", window.location.href);
+        formData.set("page_title", document.title);
+
+        setSubmitButtonState(submitButton, true);
+        setFormStatus(statusElement, "pending", "Отправляем заявку в Telegram...");
+
+        try {
+          const response = await fetch(form.getAttribute("action") || "./send-request.php", {
+            method: "POST",
+            body: formData,
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          const result = await response.json().catch(() => ({
+            ok: false,
+            message: "Сервер вернул непонятный ответ. Проверьте PHP-обработчик на хостинге.",
+          }));
+
+          if (!response.ok || !result.ok) {
+            throw new Error(result.message || "Не удалось отправить заявку.");
+          }
+
+          const preservedValues = Array.from(form.querySelectorAll("[data-preserve-on-reset]")).map((input) => [input, input.value]);
+          form.reset();
+          preservedValues.forEach(([input, value]) => {
+            input.value = value;
+          });
+
+          if (typeof onSuccess === "function") {
+            onSuccess(result);
+          }
+
+          setFormStatus(statusElement, "success", result.message || "Заявка отправлена. Мы скоро свяжемся с вами.");
+          return true;
+        } catch (error) {
+          setFormStatus(
+            statusElement,
+            "error",
+            error instanceof Error ? error.message : "Не удалось отправить заявку. Попробуйте ещё раз.",
+          );
+          return false;
+        } finally {
+          setSubmitButtonState(submitButton, false);
+        }
+      }
+
       (function () {
         const params = new URLSearchParams(window.location.search);
         const form = document.querySelector("[data-order-page-form]");
@@ -429,14 +572,13 @@
         }
 
         if (form) {
-          form.addEventListener("submit", (event) => {
+          form.addEventListener("submit", async (event) => {
             event.preventDefault();
+            const submitted = await submitLeadForm(form, successMessage, updateCounter);
 
-            if (successMessage) {
-              successMessage.classList.add("is-visible");
+            if (submitted) {
+              window.scrollTo({ top: 0, behavior: "smooth" });
             }
-
-            window.scrollTo({ top: 0, behavior: "smooth" });
           });
         }
       })();
