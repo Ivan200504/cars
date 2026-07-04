@@ -10,7 +10,7 @@ jobs:
   ftp-deploy:
     name: Upload website to hosting
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Get latest code
@@ -29,22 +29,35 @@ jobs:
           esac
           echo "server_dir=$dir" >> "$GITHUB_OUTPUT"
 
-      - name: Sync files to FTP hosting
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT || 21 }}
-          protocol: ${{ secrets.FTP_PROTOCOL || 'ftp' }}
-          security: loose
-          timeout: 120000
-          log-level: verbose
-          server-dir: ${{ steps.ftp-dir.outputs.server_dir }}
-          local-dir: ./
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            **/.DS_Store
-            design-qa.md
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Sync files to hosting with lftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PORT: ${{ secrets.FTP_PORT || 21 }}
+          FTP_SERVER_DIR: ${{ steps.ftp-dir.outputs.server_dir }}
+        run: |
+          lftp -e "
+            set cmd:fail-exit true
+            set ssl:verify-certificate no
+            set ftp:ssl-force true
+            set ftp:ssl-protect-data true
+            set ftp:passive-mode true
+            set ftp:prefer-epsv false
+            set net:timeout 120
+            set net:max-retries 2
+            set net:reconnect-interval-base 5
+            open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p \"$FTP_PORT\" \"$FTP_SERVER\"
+            mkdir -p \"$FTP_SERVER_DIR\"
+            mirror -R --delete --verbose \
+              --exclude-glob .git* \
+              --exclude-glob .github \
+              --exclude-glob .github/** \
+              --exclude-glob .DS_Store \
+              --exclude-glob design-qa.md \
+              ./ \"$FTP_SERVER_DIR\"
+            bye
+          "
