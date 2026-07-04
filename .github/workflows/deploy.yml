@@ -37,10 +37,9 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_PORT: ${{ secrets.FTP_PORT || 21 }}
           FTP_SERVER_DIR: ${{ steps.ftp-dir.outputs.server_dir }}
         run: |
-          lftp -e "
+          lftp -d -u "$FTP_USERNAME","$FTP_PASSWORD" -p 21 "$FTP_SERVER" -e "
             set cmd:fail-exit true
             set ssl:verify-certificate no
             set ftp:ssl-force true
@@ -50,14 +49,13 @@ jobs:
             set net:timeout 120
             set net:max-retries 2
             set net:reconnect-interval-base 5
-            open -u \"$FTP_USERNAME\",\"$FTP_PASSWORD\" -p \"$FTP_PORT\" \"$FTP_SERVER\"
             mkdir -p \"$FTP_SERVER_DIR\"
-            mirror -R --delete --verbose \
-              --exclude-glob .git* \
-              --exclude-glob .github \
-              --exclude-glob .github/** \
-              --exclude-glob .DS_Store \
-              --exclude-glob design-qa.md \
+            mirror -R --delete --verbose \\
+              --exclude-glob .git* \\
+              --exclude-glob .github \\
+              --exclude-glob .github/** \\
+              --exclude-glob .DS_Store \\
+              --exclude-glob design-qa.md \\
               ./ \"$FTP_SERVER_DIR\"
             bye
           "
