@@ -182,7 +182,7 @@ function fileToBase64(file) {
 }
 
 async function fetchLocalCatalog() {
-  const response = await fetch("./data/catalog.json", { cache: "no-store" });
+  const response = await fetch("/data/catalog.json", { cache: "no-store" });
 
   if (!response.ok) {
     throw new Error(`Не удалось прочитать локальный каталог: ${response.status}`);
@@ -201,6 +201,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const statusBox = document.querySelector("[data-admin-status]");
   const publishButton = document.querySelector("[data-action='publish']");
   const connectButton = document.querySelector("[data-action='connect']");
+  const pullRemoteButton = document.querySelector("[data-action='pull-remote']");
   const addCarButton = document.querySelector("[data-action='add-car']");
   const duplicateButton = document.querySelector("[data-action='duplicate-car']");
   const deleteButton = document.querySelector("[data-action='delete-car']");
@@ -313,6 +314,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function getSelectedCar() {
     return state.cars.find((car) => car.id === state.selectedId) || null;
+  }
+
+  function applyCatalogCars(cars, fallbackMessage = "") {
+    const normalizedCars = Array.isArray(cars) ? cars.map(normalizeCar) : [];
+
+    if (!normalizedCars.length) {
+      state.cars = [createEmptyCar()];
+      state.selectedId = state.cars[0]?.id || "";
+
+      if (fallbackMessage) {
+        setStatus(fallbackMessage, "warning");
+      }
+
+      return false;
+    }
+
+    const previousSelectedId = state.selectedId;
+    state.cars = normalizedCars;
+    state.selectedId = state.cars.some((car) => car.id === previousSelectedId)
+      ? previousSelectedId
+      : state.cars[0]?.id || "";
+    return true;
   }
 
   function ensureUniqueId(candidate, currentId = "") {
@@ -591,17 +614,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const payload = await response.json();
     state.remoteSha = payload.sha || "";
+    let cars = [];
+    let updatedAt = "";
 
     if (payload.content) {
       const content = decodeBase64Utf8(payload.content);
       const parsed = safeJsonParse(content, null);
-      const cars = Array.isArray(parsed?.cars) ? parsed.cars : [];
-
-      if (cars.length) {
-        state.cars = cars.map(normalizeCar);
-        state.selectedId = state.cars[0]?.id || "";
-      }
+      cars = Array.isArray(parsed?.cars) ? parsed.cars : [];
+      updatedAt = typeof parsed?.updatedAt === "string" ? parsed.updatedAt : "";
     }
+
+    return {
+      cars: cars.map(normalizeCar),
+      updatedAt,
+      sha: state.remoteSha,
+    };
   }
 
   async function uploadAsset(file, carId, index) {
@@ -883,14 +910,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   connectButton?.addEventListener("click", async () => {
     try {
-      setStatus("Проверяем доступ к GitHub и забираем актуальный каталог из репозитория...", "info");
-      await fetchRemoteCatalog();
-      renderSidebar();
-      renderForm();
-      setStatus("Связь с GitHub установлена. Можно редактировать и публиковать каталог.", "success");
+      setStatus("Проверяем доступ к GitHub и готовим публикацию, не меняя текущий каталог сайта...", "info");
+      const remoteCatalog = await fetchRemoteCatalog();
+      const updatedAtLabel = remoteCatalog.updatedAt
+        ? ` Последняя версия в GitHub: ${new Date(remoteCatalog.updatedAt).toLocaleString("ru-RU")}.`
+        : "";
+      setStatus(
+        `Связь с GitHub установлена. Редактор продолжает показывать актуальный каталог сайта.${updatedAtLabel}`,
+        "success",
+      );
     } catch (error) {
       console.error(error);
       setStatus(error.message || "Не удалось подключиться к GitHub.", "danger");
+    }
+  });
+
+  pullRemoteButton?.addEventListener("click", async () => {
+    try {
+      setStatus("Загружаем каталог из GitHub в редактор...", "info");
+      const remoteCatalog = await fetchRemoteCatalog();
+
+      if (!remoteCatalog.cars.length) {
+        setStatus("В GitHub пока нет заполненного каталога. В редакторе оставлена версия сайта.", "warning");
+        return;
+      }
+
+      applyCatalogCars(remoteCatalog.cars);
+      renderSidebar();
+      renderForm();
+      setStatus("Редактор переключен на каталог из GitHub.", "success");
+    } catch (error) {
+      console.error(error);
+      setStatus(error.message || "Не удалось загрузить каталог из GitHub.", "danger");
     }
   });
 
@@ -899,20 +950,43 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadSavedSettings();
   syncGithubInputs();
 
+  let siteCatalogLoaded = false;
+
   try {
-    setStatus("Загружаем локальный каталог для редактирования...", "info");
-    state.cars = await fetchLocalCatalog();
+    setStatus("Загружаем актуальный каталог с сайта...", "info");
+    siteCatalogLoaded = applyCatalogCars(await fetchLocalCatalog());
   } catch (error) {
     console.error(error);
-    state.cars = [createEmptyCar()];
-    setStatus("Локальный каталог не найден, создан пустой шаблон.", "warning");
+    applyCatalogCars([], "Каталог сайта не найден, создан пустой шаблон.");
+    setStatus("Каталог сайта не найден, создан пустой шаблон.", "warning");
   }
 
-  state.selectedId = state.cars[0]?.id || "";
   renderSidebar();
   renderForm();
 
+  if (state.settings.token && state.settings.owner && state.settings.repo) {
+    try {
+      setStatus("Проверяем сохранённое подключение к GitHub для будущей публикации...", "info");
+      const remoteCatalog = await fetchRemoteCatalog();
+      const updatedAtLabel = remoteCatalog.updatedAt
+        ? ` GitHub-версия обновлялась ${new Date(remoteCatalog.updatedAt).toLocaleString("ru-RU")}.`
+        : "";
+      setStatus(
+        `Каталог загружен с сайта. Подключение к GitHub активно и готово к публикации.${updatedAtLabel}`,
+        "success",
+      );
+    } catch (error) {
+      console.error(error);
+      setStatus(
+        "Каталог загружен с сайта. Подключение к GitHub можно обновить вручную, если нужно публиковать изменения.",
+        "warning",
+      );
+    }
+  } else if (siteCatalogLoaded) {
+    setStatus("Актуальный каталог сайта загружен. GitHub можно подключить отдельно, когда понадобится публикация.", "info");
+  }
+
   if (!statusBox.textContent) {
-    setStatus("Редактор готов. После проверки нажмите «Подключиться к GitHub», затем «Опубликовать каталог».", "info");
+    setStatus("Редактор готов. По умолчанию он показывает актуальный каталог сайта, а GitHub нужен для публикации.", "info");
   }
 });
