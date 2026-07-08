@@ -1,6 +1,29 @@
 {
-  "updatedAt": "2026-07-08T12:17:49.185Z",
+  "updatedAt": "2026-07-08T12:21:57.046Z",
   "cars": [
+    {
+      "id": "car-1783513298314",
+      "name": "ADmin",
+      "countryCode": "usa",
+      "countryLabel": "США",
+      "statusKey": "available",
+      "statusLabel": "В наличии",
+      "price": "2000",
+      "priceRub": "",
+      "cardSpecs": "",
+      "summary": "",
+      "lead": "",
+      "specs": [],
+      "highlights": [],
+      "gallery": [
+        {
+          "src": "./assets/catalog/car-1783513298314-1783513314456-1-backpoddon.png",
+          "label": "backpoddon",
+          "position": "center center",
+          "scale": 1
+        }
+      ]
+    },
     {
       "id": "mustang",
       "name": "Ford Mustang GT 5.0",
