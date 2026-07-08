@@ -6,6 +6,10 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: ftp-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ftp-deploy:
     name: Upload website to hosting
@@ -56,6 +60,21 @@ jobs:
           rm -r .git
           rm -r .github
           set cmd:fail-exit true
-          mirror -R --delete --verbose             --exclude-glob .git             --exclude-glob .git/**             --exclude-glob .github             --exclude-glob .github/**             --exclude-glob .DS_Store             --exclude-glob design-qa.md             . .
+          mirror -R --delete --verbose \
+            --exclude-glob .git \
+            --exclude-glob .git/** \
+            --exclude-glob .github \
+            --exclude-glob .github/** \
+            --exclude-glob .codex-artifacts \
+            --exclude-glob .codex-artifacts/** \
+            --exclude-glob .tmp \
+            --exclude-glob .tmp/** \
+            --exclude-glob .DS_Store \
+            --exclude-glob *.zip \
+            --exclude-glob admin-setup.md \
+            --exclude-glob design-qa.md \
+            --exclude-glob telegram-config.php \
+            --exclude-glob telegram-config.example.php \
+            . .
           bye
           LFTP_CMDS
