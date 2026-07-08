@@ -81,6 +81,17 @@ function normalizeGalleryItem(item, index) {
   };
 }
 
+function safeTrim(value) {
+  return String(value ?? "").trim();
+}
+
+function normalizeSpecItem(item) {
+  return {
+    label: safeTrim(item?.label),
+    value: safeTrim(item?.value),
+  };
+}
+
 function normalizeCar(car, index) {
   const countryCode = car?.countryCode && COUNTRY_OPTIONS[car.countryCode] ? car.countryCode : "usa";
   const statusKey = car?.statusKey && STATUS_OPTIONS[car.statusKey] ? car.statusKey : "available";
@@ -257,6 +268,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     rememberToken: githubForm.querySelector("[name='rememberToken']"),
   };
 
+  const editorActionButtons = [duplicateButton, deleteButton, moveUpButton, moveDownButton].filter(Boolean);
+  const editorControls = Array.from(editorForm.querySelectorAll("input, textarea, select, button"));
+
+  function setEditorDisabled(disabled) {
+    editorControls.forEach((control) => {
+      control.disabled = disabled;
+    });
+
+    editorActionButtons.forEach((button) => {
+      button.disabled = disabled;
+    });
+
+    if (uploadInput) {
+      uploadInput.disabled = disabled;
+    }
+  }
+
   function setStatus(message, tone = "info") {
     statusBox.textContent = message;
     statusBox.dataset.tone = tone;
@@ -316,12 +344,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     return state.cars.find((car) => car.id === state.selectedId) || null;
   }
 
-  function applyCatalogCars(cars, fallbackMessage = "") {
+  function applyCatalogCars(cars, fallbackMessage = "", { keepEmpty = true } = {}) {
     const normalizedCars = Array.isArray(cars) ? cars.map(normalizeCar) : [];
 
     if (!normalizedCars.length) {
-      state.cars = [createEmptyCar()];
-      state.selectedId = state.cars[0]?.id || "";
+      if (keepEmpty) {
+        state.cars = [];
+        state.selectedId = "";
+      } else {
+        state.cars = [createEmptyCar()];
+        state.selectedId = state.cars[0]?.id || "";
+      }
 
       if (fallbackMessage) {
         setStatus(fallbackMessage, "warning");
@@ -352,6 +385,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   function renderSidebar() {
+    if (!state.cars.length) {
+      sidebarList.innerHTML = `
+        <div class="admin-list__empty">
+          <strong>Каталог пока пуст.</strong>
+          <span>Нажмите «Новая машина», чтобы добавить карточку, или опубликуйте пустой каталог после удаления всех машин.</span>
+        </div>
+      `;
+      return;
+    }
+
     sidebarList.innerHTML = state.cars
       .map((car) => {
         const isActive = car.id === state.selectedId;
@@ -415,9 +458,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const car = getSelectedCar();
 
     if (!car) {
+      formTitle.textContent = "Нет выбранной машины";
+      editorForm.reset();
+      galleryList.innerHTML = "";
+      previewCard.innerHTML = "";
+      previewModal.innerHTML = "";
+      setEditorDisabled(true);
       return;
     }
 
+    setEditorDisabled(false);
     formTitle.textContent = car.name;
     formFields.id.value = car.id;
     formFields.name.value = car.name;
@@ -549,7 +599,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     state.cars = state.cars.filter((car) => car.id !== current.id);
 
     if (!state.cars.length) {
-      addCar();
+      state.selectedId = "";
+      renderSidebar();
+      renderForm();
+      setStatus("Все карточки удалены из редактора. Нажмите «Опубликовать каталог», чтобы сохранить пустой каталог на сайте.", "warning");
       return;
     }
 
@@ -564,23 +617,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const proposedId = ensureUniqueId(formFields.id.value.trim() || formFields.name.value.trim() || current.id, current.id);
+    const proposedId = ensureUniqueId(safeTrim(formFields.id.value) || safeTrim(formFields.name.value) || current.id, current.id);
 
     if (current.id !== proposedId) {
       state.selectedId = proposedId;
     }
 
     current.id = proposedId;
-    current.name = formFields.name.value.trim() || "Без названия";
+    current.name = safeTrim(formFields.name.value) || "Без названия";
     current.countryCode = formFields.countryCode.value;
     current.countryLabel = COUNTRY_OPTIONS[current.countryCode] || current.countryLabel;
     current.statusKey = formFields.statusKey.value;
-    current.statusLabel = formFields.statusLabel.value.trim() || STATUS_OPTIONS[current.statusKey];
-    current.price = formFields.price.value.trim();
-    current.priceRub = formFields.priceRub.value.trim();
-    current.cardSpecs = formFields.cardSpecs.value.trim();
-    current.summary = formFields.summary.value.trim();
-    current.lead = formFields.lead.value.trim();
+    current.statusLabel = safeTrim(formFields.statusLabel.value) || STATUS_OPTIONS[current.statusKey];
+    current.price = safeTrim(formFields.price.value);
+    current.priceRub = safeTrim(formFields.priceRub.value);
+    current.cardSpecs = safeTrim(formFields.cardSpecs.value);
+    current.summary = safeTrim(formFields.summary.value);
+    current.lead = safeTrim(formFields.lead.value);
     current.specs = parseSpecsText(formFields.specsText.value);
     current.highlights = normalizeTextList(formFields.highlightsText.value);
     formFields.id.value = current.id;
@@ -666,8 +719,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const gallery = [];
 
       for (let index = 0; index < car.gallery.length; index += 1) {
-        const item = car.gallery[index];
-        let src = item.src.trim();
+        const item = normalizeGalleryItem(car.gallery[index], index);
+        let src = safeTrim(item.src);
 
         if (item.file) {
           src = await uploadAsset(item.file, car.id, index);
@@ -675,29 +728,28 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         gallery.push({
           src,
-          label: item.label.trim() || `Фото ${index + 1}`,
-          position: item.position.trim() || "center center",
+          label: safeTrim(item.label) || `Фото ${index + 1}`,
+          position: safeTrim(item.position) || "center center",
           scale: Number(item.scale) > 0 ? Number(item.scale) : 1,
         });
       }
 
       cars.push({
-        id: car.id,
-        name: car.name.trim(),
+        id: safeTrim(car.id) || `car-${Date.now()}`,
+        name: safeTrim(car.name) || "Без названия",
         countryCode: car.countryCode,
         countryLabel: COUNTRY_OPTIONS[car.countryCode] || car.countryLabel,
         statusKey: car.statusKey,
-        statusLabel: car.statusLabel.trim() || STATUS_OPTIONS[car.statusKey],
-        price: car.price.trim(),
-        priceRub: car.priceRub.trim(),
-        cardSpecs: car.cardSpecs.trim(),
-        summary: car.summary.trim(),
-        lead: car.lead.trim(),
-        specs: car.specs.map((item) => ({
-          label: item.label.trim(),
-          value: item.value.trim(),
-        })),
-        highlights: car.highlights.map((item) => item.trim()).filter(Boolean),
+        statusLabel: safeTrim(car.statusLabel) || STATUS_OPTIONS[car.statusKey],
+        price: safeTrim(car.price),
+        priceRub: safeTrim(car.priceRub),
+        cardSpecs: safeTrim(car.cardSpecs),
+        summary: safeTrim(car.summary),
+        lead: safeTrim(car.lead),
+        specs: (Array.isArray(car.specs) ? car.specs : [])
+          .map(normalizeSpecItem)
+          .filter((item) => item.label || item.value),
+        highlights: (Array.isArray(car.highlights) ? car.highlights : []).map(safeTrim).filter(Boolean),
         gallery,
       });
     }
@@ -723,11 +775,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!state.settings.owner || !state.settings.repo || !state.settings.branch || !state.settings.filePath || !state.settings.token) {
       setStatus("Для публикации заполните настройки GitHub и токен.", "warning");
-      return;
-    }
-
-    if (!state.cars.length) {
-      setStatus("Каталог пустой. Добавьте хотя бы одну машину.", "warning");
       return;
     }
 
@@ -957,7 +1004,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     siteCatalogLoaded = applyCatalogCars(await fetchLocalCatalog());
   } catch (error) {
     console.error(error);
-    applyCatalogCars([], "Каталог сайта не найден, создан пустой шаблон.");
+    applyCatalogCars([], "Каталог сайта не найден, создан пустой шаблон.", { keepEmpty: false });
     setStatus("Каталог сайта не найден, создан пустой шаблон.", "warning");
   }
 
