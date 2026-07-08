@@ -12,6 +12,9 @@ const STATUS_META = {
   reserved: { label: "Резерв", className: "reserved" },
 };
 
+const DEFAULT_CAR_IMAGE = "./assets/hero-scene-v3.webp";
+const IMAGE_RETRY_DELAYS_MS = [1200, 3000, 6000];
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -21,21 +24,44 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function normalizeGallery(gallery, fallbackSrc, fallbackName) {
+function buildImageUrl(src, catalogVersion = "", retryToken = "") {
+  const base = String(src || "").trim() || DEFAULT_CAR_IMAGE;
+  const params = [];
+
+  if (catalogVersion) {
+    params.push(`v=${encodeURIComponent(catalogVersion)}`);
+  }
+
+  if (retryToken) {
+    params.push(`retry=${encodeURIComponent(retryToken)}`);
+  }
+
+  if (!params.length) {
+    return base;
+  }
+
+  return `${base}${base.includes("?") ? "&" : "?"}${params.join("&")}`;
+}
+
+function normalizeGallery(gallery, fallbackSrc, fallbackName, catalogVersion) {
   const items = Array.isArray(gallery) ? gallery.filter((item) => item && item.src) : [];
 
   if (items.length) {
     return items.map((item, index) => ({
-      src: item.src,
+      src: buildImageUrl(item.src, catalogVersion),
+      rawSrc: item.src,
       label: item.label || `Фото ${index + 1}`,
       position: item.position || "center center",
       scale: Number(item.scale) > 0 ? Number(item.scale) : 1,
     }));
   }
 
+  const safeFallbackSrc = fallbackSrc || DEFAULT_CAR_IMAGE;
+
   return [
     {
-      src: fallbackSrc || "./assets/hero-scene-v3.webp",
+      src: buildImageUrl(safeFallbackSrc, catalogVersion),
+      rawSrc: safeFallbackSrc,
       label: "Фото",
       position: "center center",
       scale: 1,
@@ -44,12 +70,12 @@ function normalizeGallery(gallery, fallbackSrc, fallbackName) {
   ];
 }
 
-function normalizeCar(car, index) {
+function normalizeCar(car, index, catalogVersion) {
   const id = car?.id || `car-${index + 1}`;
   const countryCode = car?.countryCode || "usa";
   const countryMeta = COUNTRY_META[countryCode] || COUNTRY_META.usa;
   const statusMeta = STATUS_META[car?.statusKey] || STATUS_META.available;
-  const gallery = normalizeGallery(car?.gallery, car?.image, car?.name);
+  const gallery = normalizeGallery(car?.gallery, car?.image, car?.name, catalogVersion);
 
   return {
     id,
@@ -87,6 +113,8 @@ function createCardMarkup(car) {
       <div class="inventory__media">
         <img
           src="${escapeHtml(car.cover.src)}"
+          data-car-image="card"
+          data-image-src="${escapeHtml(car.cover.rawSrc || car.cover.src)}"
           alt="${escapeHtml(car.name)}"
           loading="lazy"
           decoding="async"
@@ -132,6 +160,8 @@ function createThumbMarkup(slide, index, activeIndex) {
       <span class="car-modal__thumb-image" aria-hidden="true">
         <img
           src="${escapeHtml(slide.src)}"
+          data-car-image="thumb"
+          data-image-src="${escapeHtml(slide.rawSrc || slide.src)}"
           alt=""
           style="object-position: ${escapeHtml(slide.position)}; transform: scale(${escapeHtml(slide.scale)});"
         />
@@ -149,8 +179,12 @@ async function loadCatalog() {
 
   const payload = await response.json();
   const cars = Array.isArray(payload?.cars) ? payload.cars : [];
+  const updatedAt = typeof payload?.updatedAt === "string" ? payload.updatedAt : "";
 
-  return cars.map(normalizeCar);
+  return {
+    updatedAt,
+    cars: cars.map((car, index) => normalizeCar(car, index, updatedAt)),
+  };
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -186,6 +220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const state = {
     cars: [],
     carsById: new Map(),
+    catalogVersion: "",
     previousFocus: null,
     currentCar: null,
     currentGalleryIndex: 0,
@@ -209,6 +244,55 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  function retryImageLoad(image) {
+    const rawSrc = image.dataset.imageSrc || DEFAULT_CAR_IMAGE;
+    const attempt = Number(image.dataset.retryAttempt || "0");
+
+    if (image.__catalogRetryTimer) {
+      window.clearTimeout(image.__catalogRetryTimer);
+    }
+
+    if (attempt >= IMAGE_RETRY_DELAYS_MS.length) {
+      image.src = DEFAULT_CAR_IMAGE;
+      return;
+    }
+
+    const nextAttempt = attempt + 1;
+    image.dataset.retryAttempt = String(nextAttempt);
+
+    image.__catalogRetryTimer = window.setTimeout(() => {
+      if (!image.isConnected) {
+        return;
+      }
+
+      image.src = buildImageUrl(rawSrc, state.catalogVersion, `${Date.now()}-${nextAttempt}`);
+    }, IMAGE_RETRY_DELAYS_MS[attempt]);
+  }
+
+  function bindCatalogImages(root) {
+    root.querySelectorAll("img[data-car-image][data-image-src]").forEach((image) => {
+      if (!image.dataset.imageBound) {
+        image.addEventListener("load", () => {
+          if (image.__catalogRetryTimer) {
+            window.clearTimeout(image.__catalogRetryTimer);
+            image.__catalogRetryTimer = null;
+          }
+
+          image.dataset.retryAttempt = "0";
+        });
+
+        image.addEventListener("error", () => {
+          retryImageLoad(image);
+        });
+
+        image.dataset.imageBound = "true";
+      }
+
+      image.dataset.retryAttempt = "0";
+      image.src = buildImageUrl(image.dataset.imageSrc, state.catalogVersion);
+    });
+  }
+
   function renderInventory() {
     const activeCountries = getActiveCountries();
     const visibleCars = state.cars.filter((car) => activeCountries.includes(car.countryCode));
@@ -224,6 +308,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     inventoryGrid.innerHTML = visibleCars.map(createCardMarkup).join("");
+    bindCatalogImages(inventoryGrid);
 
     if (mobileInventoryMedia.matches) {
       inventoryGrid.scrollTo({ left: 0, behavior: "smooth" });
@@ -257,14 +342,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const slide = gallery[safeIndex];
 
     state.currentGalleryIndex = safeIndex;
-    carModalImage.src = slide.src;
+    carModalImage.dataset.carImage = "stage";
+    carModalImage.dataset.imageSrc = slide.rawSrc || slide.src;
+    carModalImage.dataset.retryAttempt = "0";
+    carModalImage.src = buildImageUrl(carModalImage.dataset.imageSrc, state.catalogVersion);
     carModalImage.alt = `${state.currentCar.name} — ${slide.label.toLowerCase()}`;
     carModalImage.style.objectPosition = slide.position;
     carModalImage.style.transform = `scale(${slide.scale})`;
 
     if (carModalThumbs) {
       carModalThumbs.innerHTML = gallery.map((item, itemIndex) => createThumbMarkup(item, itemIndex, safeIndex)).join("");
+      bindCatalogImages(carModalThumbs);
     }
+
+    bindCatalogImages(carModal);
 
     updateGalleryControls(gallery.length);
   }
@@ -485,7 +576,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   try {
     setInventoryStatus("Загружаем каталог...");
-    state.cars = await loadCatalog();
+    const catalogPayload = await loadCatalog();
+    state.catalogVersion = catalogPayload.updatedAt || String(Date.now());
+    state.cars = catalogPayload.cars;
     state.carsById = new Map(state.cars.map((car) => [car.id, car]));
     bindFilters();
     bindInventoryEvents();
