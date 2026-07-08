@@ -1,6 +1,35 @@
 {
-  "updatedAt": "2026-07-08T12:49:08.627Z",
+  "updatedAt": "2026-07-08T12:58:26.144Z",
   "cars": [
+    {
+      "id": "car-1783515442102",
+      "name": "Admin",
+      "countryCode": "korea",
+      "countryLabel": "Корея",
+      "statusKey": "transit",
+      "statusLabel": "В наличии",
+      "price": "999",
+      "priceRub": "",
+      "cardSpecs": "",
+      "summary": "привет админ",
+      "lead": "",
+      "specs": [],
+      "highlights": [],
+      "gallery": [
+        {
+          "src": "./assets/catalog/car-1783515442102-1783515501703-1--.png",
+          "label": "коминт",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1783515442102-1783515503898-2-backpoddon.png",
+          "label": "backpoddon",
+          "position": "center center",
+          "scale": 1
+        }
+      ]
+    },
     {
       "id": "mustang",
       "name": "Ford Mustang GT 5.0",
