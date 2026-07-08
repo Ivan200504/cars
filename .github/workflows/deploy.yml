@@ -55,11 +55,14 @@ jobs:
           set net:max-retries 2
           set net:reconnect-interval-base 5
           mkdir -p "$FTP_SERVER_DIR"
+          mkdir -p "$FTP_SERVER_DIR/data"
           cd "$FTP_SERVER_DIR"
           set cmd:fail-exit false
           rm -r .git
           rm -r .github
           set cmd:fail-exit true
+          # Upload all assets and page files first so the live catalog never
+          # points to an image that has not reached the host yet.
           mirror -R --delete --verbose \
             --exclude-glob .git \
             --exclude-glob .git/** \
@@ -73,8 +76,10 @@ jobs:
             --exclude-glob *.zip \
             --exclude-glob admin-setup.md \
             --exclude-glob design-qa.md \
+            --exclude-glob data/catalog.json \
             --exclude-glob telegram-config.php \
             --exclude-glob telegram-config.example.php \
             . .
+          put -O "$FTP_SERVER_DIR/data" data/catalog.json
           bye
           LFTP_CMDS
