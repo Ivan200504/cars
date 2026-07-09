@@ -388,6 +388,16 @@
         color: #dae8ff;
       }
 
+      .admin-list__item-status--auction {
+        background: rgba(186, 122, 38, 0.22);
+        color: #ffe3b4;
+      }
+
+      .admin-list__item-status--dealer {
+        background: rgba(41, 126, 120, 0.22);
+        color: #c9fffb;
+      }
+
       .admin-list__item-status--reserved {
         background: rgba(173, 125, 37, 0.22);
         color: #fff0c7;
@@ -539,6 +549,16 @@
       .preview-card__status--transit {
         background: rgba(64, 96, 144, 0.2);
         color: #dae8ff;
+      }
+
+      .preview-card__status--auction {
+        background: rgba(186, 122, 38, 0.22);
+        color: #ffe3b4;
+      }
+
+      .preview-card__status--dealer {
+        background: rgba(41, 126, 120, 0.22);
+        color: #c9fffb;
       }
 
       .preview-card__status--reserved {
@@ -751,6 +771,8 @@
                   <select class="field__control" name="statusKey">
                     <option value="available">В наличии</option>
                     <option value="transit">В пути</option>
+                    <option value="auction">На аукционе</option>
+                    <option value="dealer">У диллера</option>
                     <option value="reserved">Резерв</option>
                   </select>
                 </label>
