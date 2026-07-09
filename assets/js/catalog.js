@@ -9,6 +9,8 @@ const COUNTRY_META = {
 const STATUS_META = {
   available: { label: "В наличии", className: "available" },
   transit: { label: "В пути", className: "transit" },
+  auction: { label: "На аукционе", className: "auction" },
+  dealer: { label: "У диллера", className: "dealer" },
   reserved: { label: "Резерв", className: "reserved" },
 };
 
