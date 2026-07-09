@@ -9,6 +9,8 @@ const COUNTRY_OPTIONS = {
 const STATUS_OPTIONS = {
   available: "В наличии",
   transit: "В пути",
+  auction: "На аукционе",
+  dealer: "У диллера",
   reserved: "Резерв",
 };
 
