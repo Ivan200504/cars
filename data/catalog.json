@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-20T11:09:28.158Z",
+  "updatedAt": "2026-07-20T11:09:42.097Z",
   "cars": [
     {
       "id": "car-1784545193676",
@@ -12,7 +12,7 @@
       "priceRub": "174 518 BYN",
       "cardSpecs": "05-2022 - 54,563 миль - 3.0 L  Бензин - AWD",
       "summary": "Авто с аукциона manheim",
-      "lead": "",
+      "lead": "Авто с аукциона manheim",
       "specs": [
         {
           "label": "Год",
@@ -34,61 +34,61 @@
       "highlights": [],
       "gallery": [
         {
-          "src": "./assets/catalog/car-1784545193676-1784545753699-1-image-2026-07-20-13-59-16.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/0e00348a-9a96-4098-9ae7-aca1c9635ec3",
           "label": "IMAGE 2026-07-20 13:59:16",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545755358-2-image-2026-07-20-13-59-18.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/c8e7bb9a-d759-4735-9f0e-1e9631704869",
           "label": "IMAGE 2026-07-20 13:59:18",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545757302-3-image-2026-07-20-13-59-20.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/c4d42fbb-4017-43dc-8f38-a367cc0c1ead",
           "label": "IMAGE 2026-07-20 13:59:20",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545758635-4-image-2026-07-20-13-59-22.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/bbf6e353-d8c4-492e-aa97-0620052e9e4e",
           "label": "IMAGE 2026-07-20 13:59:22",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545760069-5-image-2026-07-20-13-59-23.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/7f6c58e7-a8f0-4d21-95b5-543bbc04ba1c",
           "label": "IMAGE 2026-07-20 13:59:23",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545761501-6-image-2026-07-20-13-59-27.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/cfeb146b-13f6-4ddc-a987-4e71d42a7f88",
           "label": "IMAGE 2026-07-20 13:59:27",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545762935-7-image-2026-07-20-13-59-30.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/e7b5c1f3-167b-42a6-90da-c1fa1b54484a",
           "label": "IMAGE 2026-07-20 13:59:30",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545764062-8-image-2026-07-20-13-59-31.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/5bd78e99-6ef0-443e-82e4-99eeea613bc5",
           "label": "IMAGE 2026-07-20 13:59:31",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545765392-9-image-2026-07-20-13-59-36.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/acfd68c7-2a2d-47ac-98f2-01d54ca7e5b9",
           "label": "IMAGE 2026-07-20 13:59:36",
           "position": "center center",
           "scale": 1
         },
         {
-          "src": "./assets/catalog/car-1784545193676-1784545766724-10-image-2026-07-20-13-59-38.jpg",
+          "src": "blob:http://xn--c1adjdtdgfjgl1d0c.xn--90ais/f492a1eb-3015-43c4-9ea0-3c95cb212185",
           "label": "IMAGE 2026-07-20 13:59:38",
           "position": "center center",
           "scale": 1
