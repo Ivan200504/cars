@@ -1,4 +1,122 @@
 {
-  "updatedAt": "2026-07-20T10:25:11.218Z",
-  "cars": []
+  "updatedAt": "2026-07-20T11:09:28.158Z",
+  "cars": [
+    {
+      "id": "car-1784545193676",
+      "name": "Mercedes-Benz GLS 450 4MATIC",
+      "countryCode": "usa",
+      "countryLabel": "США",
+      "statusKey": "dealer",
+      "statusLabel": "У диллера",
+      "price": "60 500 $",
+      "priceRub": "174 518 BYN",
+      "cardSpecs": "05-2022 - 54,563 миль - 3.0 L  Бензин - AWD",
+      "summary": "Авто с аукциона manheim",
+      "lead": "",
+      "specs": [
+        {
+          "label": "Год",
+          "value": "05-2022"
+        },
+        {
+          "label": "Объем",
+          "value": "3.0 L  Бензин"
+        },
+        {
+          "label": "Привод",
+          "value": "AWD"
+        },
+        {
+          "label": "Пробег",
+          "value": "54,563 миль"
+        }
+      ],
+      "highlights": [],
+      "gallery": [
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545753699-1-image-2026-07-20-13-59-16.jpg",
+          "label": "IMAGE 2026-07-20 13:59:16",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545755358-2-image-2026-07-20-13-59-18.jpg",
+          "label": "IMAGE 2026-07-20 13:59:18",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545757302-3-image-2026-07-20-13-59-20.jpg",
+          "label": "IMAGE 2026-07-20 13:59:20",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545758635-4-image-2026-07-20-13-59-22.jpg",
+          "label": "IMAGE 2026-07-20 13:59:22",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545760069-5-image-2026-07-20-13-59-23.jpg",
+          "label": "IMAGE 2026-07-20 13:59:23",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545761501-6-image-2026-07-20-13-59-27.jpg",
+          "label": "IMAGE 2026-07-20 13:59:27",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545762935-7-image-2026-07-20-13-59-30.jpg",
+          "label": "IMAGE 2026-07-20 13:59:30",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545764062-8-image-2026-07-20-13-59-31.jpg",
+          "label": "IMAGE 2026-07-20 13:59:31",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545765392-9-image-2026-07-20-13-59-36.jpg",
+          "label": "IMAGE 2026-07-20 13:59:36",
+          "position": "center center",
+          "scale": 1
+        },
+        {
+          "src": "./assets/catalog/car-1784545193676-1784545766724-10-image-2026-07-20-13-59-38.jpg",
+          "label": "IMAGE 2026-07-20 13:59:38",
+          "position": "center center",
+          "scale": 1
+        }
+      ]
+    },
+    {
+      "id": "car-1784543205015",
+      "name": "Новая машина",
+      "countryCode": "usa",
+      "countryLabel": "США",
+      "statusKey": "available",
+      "statusLabel": "В наличии",
+      "price": "",
+      "priceRub": "",
+      "cardSpecs": "",
+      "summary": "",
+      "lead": "",
+      "specs": [],
+      "highlights": [],
+      "gallery": [
+        {
+          "src": "./assets/hero-scene-v3.webp",
+          "label": "Фото",
+          "position": "center center",
+          "scale": 1
+        }
+      ]
+    }
+  ]
 }
